@@ -4,18 +4,26 @@ from sklearn.model_selection import train_test_split
 import joblib # Importazione aggiunta per salvare/caricare il modello
 
 
+vectorizer = None
+model = None
+
 def loadModel():
-    model = joblib.load('model.pkl')
-    print("Model loaded")
-    return model
+    global model
+    if model is None:
+        model = joblib.load('model.pkl')
+        print("Model loaded")
 
 def loadVectorizer():
-    vectorizer = joblib.load('vectorizer.pkl')
-    print("Vectorizer loaded")
-    return vectorizer
+    global vectorizer
+    if vectorizer is None:
+        vectorizer = joblib.load('vectorizer.pkl')
+        print("Vectorizer loaded")
+
 
 
 def predict(text, threshold=0.2):
+    if model is None or vectorizer is None:
+        raise RuntimeError("Il modello non è stato caricato!")
     textVector = vectorizer.transform([text])
     confidence = model.decision_function(textVector) # Ottieni il punteggio di decisione (>0 = phishing)
     prediction = (confidence >= threshold).astype(int)
@@ -23,5 +31,3 @@ def predict(text, threshold=0.2):
     return prediction
 
 
-vectorizer = loadVectorizer()
-model = loadModel()
