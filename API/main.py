@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Body
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import detector
 
@@ -15,11 +16,20 @@ async def lifespan(app: FastAPI):
     
     print("Shutting down...")
 
+
+
 app = FastAPI(lifespan=lifespan)
 
+# Configurazione CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], #TODO: Inserire URL FE
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-
-app.post("/predict/")
+@app.post("/predict/")
 async def predict(text: str = Body(..., embed=True)):
     try:
         prediction = detector.predict(text)
